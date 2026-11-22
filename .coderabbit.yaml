@@ -1,0 +1,70 @@
+# CodeRabbit settings: how the AI reviewer should review our pull requests.
+# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-GB
+
+# Max 250 characters.
+tone_instructions: >-
+  The author is a junior developer who is learning. Use plain, simple English.
+  Explain WHY something is a problem, not just what to change. Explain jargon
+  the first time you use it.
+
+reviews:
+  profile: chill # fewer nitpicks, focus on things that matter
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+
+  # Don't review files that tools write for us.
+  path_filters:
+    - "!**/package-lock.json"
+    - "!server/src/generated/**"
+    - "!**/dist/**"
+
+  path_instructions:
+    - path: "**/*"
+      instructions: |
+        The design in docs/design/ (requirements.md, database.md, api.md) is the source
+        of truth. Flag any change that doesn't match it: routes, status codes, error
+        shape, table fields or business rules.
+        We build one user story at a time; flag changes that clearly belong to another story.
+
+    - path: "server/**/*.ts"
+      instructions: |
+        Business rules from CLAUDE.md. Flag clearly if any of these are broken:
+        - Ledger entries are append-only: never update or delete a LedgerEntry.
+          Mistakes are fixed with a REVERSAL entry (reversesEntryId is unique).
+        - Money is always whole cents stored as Int (amountCents). Never floats or decimals.
+        - Balances and member statuses (PAID, PARTIAL, NOT_DUE, LATE) are calculated
+          from the ledger, never stored.
+        - Members are never deleted; leaving sets status LEFT and leftAt.
+        - Stokvel routes return 404 (not 403) to non-members.
+        - Every error uses the shape { statusCode, error, message }.
+        - Phone numbers are stored as +27XXXXXXXXX.
+        - Payout swaps change both positions inside one database transaction.
+        - Passwords are hashed; secrets and connection strings never appear in code or logs.
+
+    - path: "server/**/*.spec.ts"
+      instructions: |
+        Every business rule (money, payout order, roles, late status) needs a test.
+        Point out missing edge cases, e.g. zero or negative amounts, partial payments,
+        wrong role, non-member, reversing the same entry twice.
+
+    - path: "server/test/**"
+      instructions: |
+        e2e tests must use the test database from .env.test, never .env (dev data).
+
+    - path: "client/**/*.{ts,tsx}"
+      instructions: |
+        Money arrives from the API as whole cents; format it as rand only for display.
+        Never do money maths with floats.
+
+chat:
+  auto_reply: true

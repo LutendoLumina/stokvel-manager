@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+
+# Keep environment variables (passwords!) out of version control
+.env
+.env.test
+
+# Prisma writes this code itself from schema.prisma, so we don't commit it
+/src/generated

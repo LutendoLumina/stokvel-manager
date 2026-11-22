@@ -1,0 +1,15 @@
+// Prisma schema: the "map" of our database.
+// No tables yet. Each user story adds the tables it needs (User arrives in US-01).
+// Design: docs/design/database.md
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+// The connection address lives in prisma.config.ts, not here.
+datasource db {
+  provider = "postgresql"
+}

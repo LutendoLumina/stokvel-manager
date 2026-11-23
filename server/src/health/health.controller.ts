@@ -4,12 +4,15 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
+import { Public } from '../auth/public.decorator.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 
 /**
  * GET /api/v1/health
  * Answers "is the server running, and can it reach the database?"
+ * Public: monitoring tools check it without logging in.
  */
+@Public()
 @Controller('health')
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);

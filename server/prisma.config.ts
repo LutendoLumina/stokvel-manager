@@ -2,8 +2,9 @@ import { existsSync } from 'node:fs';
 import { defineConfig } from 'prisma/config';
 
 // Prisma doesn't read .env by itself, so we load it with Node's built-in helper.
-// In CI there is no .env file: the variables come from the workflow instead.
-if (existsSync('.env')) process.loadEnvFile('.env');
+// If a database address is already set (CI, or `npm run db:migrate:test`, which
+// loads .env.test), we skip .env completely, so dev values can never mix in.
+if (!process.env.DATABASE_URL && existsSync('.env')) process.loadEnvFile('.env');
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

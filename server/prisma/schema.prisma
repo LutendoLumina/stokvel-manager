@@ -1,6 +1,5 @@
 // Prisma schema: the "map" of our database.
-// No tables yet. Each user story adds the tables it needs (User arrives in US-01).
-// Design: docs/design/database.md
+// Each user story adds the tables it needs. Design: docs/design/database.md
 
 generator client {
   provider            = "prisma-client"
@@ -12,4 +11,14 @@ generator client {
 // The connection address lives in prisma.config.ts, not here.
 datasource db {
   provider = "postgresql"
+}
+
+// A person who can log in (US-01).
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  phone        String   @unique // always +27 format, e.g. +27821234567
+  email        String? // optional: many members don't use email
+  passwordHash String // never the real password
+  name         String
+  createdAt    DateTime @default(now())
 }

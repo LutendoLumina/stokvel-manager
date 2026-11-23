@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
@@ -127,6 +128,36 @@ describe('US-01 sign up and log in (e2e)', () => {
 
       expect(res.body).toMatchObject({ name: 'Thandi Mokoena', phone: '+27821234567' });
       expect(res.body).not.toHaveProperty('passwordHash');
+    });
+
+    it('gives tokens that last exactly 1 hour (docs/design/api.md)', async () => {
+      const { body } = await signup(thandi).expect(201);
+
+      const { iat, exp } = new JwtService().decode<{ iat: number; exp: number }>(
+        body.accessToken,
+      );
+      expect(exp - iat).toBe(3600);
+    });
+
+    it('returns 401 for an expired token, even with a real signature', async () => {
+      const { body } = await signup(thandi).expect(201);
+      // Signed with the real JWT_SECRET, but its expiry time is one minute ago.
+      const now = Math.floor(Date.now() / 1000);
+      const expired = await new JwtService({ secret: process.env.JWT_SECRET }).signAsync({
+        sub: body.user.id,
+        iat: now - 3660,
+        exp: now - 60,
+      });
+
+      const res = await api()
+        .get('/api/v1/me')
+        .set('Authorization', `Bearer ${expired}`)
+        .expect(401);
+      expect(res.body).toEqual({
+        statusCode: 401,
+        error: 'UNAUTHORIZED',
+        message: 'Please log in.',
+      });
     });
 
     it.each([

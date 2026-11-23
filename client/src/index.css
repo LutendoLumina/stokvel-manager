@@ -3,6 +3,7 @@
   --muted: #59636e;
   --bg: #ffffff;
   --ok: #1a7f37;
+  --on-ok: #ffffff; /* text on a green button: 5.1:1 contrast */
   --bad: #cf222e;
 
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -18,6 +19,7 @@
     --muted: #9198a1;
     --bg: #0d1117;
     --ok: #3fb950;
+    --on-ok: #0d1117; /* dark text on bright green: 7.5:1 (white would be 2.5:1) */
     --bad: #f85149;
   }
 }
@@ -78,7 +80,7 @@ button {
   border: none;
   border-radius: 6px;
   background: var(--ok);
-  color: #fff;
+  color: var(--on-ok);
   cursor: pointer;
 }
 

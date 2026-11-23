@@ -53,7 +53,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   const error = await response.json().catch(() => null)
   // Expired token on a normal request: log out. (Not for log-in/sign-up themselves:
   // there a 401 means "wrong password", and the page must show that message.)
-  if (response.status === 401 && token && !path.startsWith('/auth/')) {
+  // Only if the saved token is still the one this request used: if you logged in
+  // again while an old request was on its way, that old 401 mustn't log you out.
+  if (response.status === 401 && token && !path.startsWith('/auth/') && getToken() === token) {
     clearToken()
     window.location.assign('/login')
   }

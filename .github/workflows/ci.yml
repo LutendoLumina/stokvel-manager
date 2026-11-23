@@ -35,6 +35,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stokvel_test
       DIRECT_URL: postgresql://postgres:postgres@localhost:5432/stokvel_test
+      # A throwaway secret for CI only. The real ones live in your .env files.
+      JWT_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
 
     steps:
       - uses: actions/checkout@v5
@@ -45,7 +47,8 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - run: npm ci
       - run: npx prisma generate
-      # Once we have tables (US-01), add: npx prisma migrate deploy
+      # Create the tables in the throwaway database from prisma/migrations.
+      - run: npx prisma migrate deploy
       - run: npm run lint
       - run: npm test
       - run: npm run build

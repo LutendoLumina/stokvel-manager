@@ -18,8 +18,11 @@ You need Node 22. You don't need Docker: the database lives on Neon.
 ```bash
 cd server
 npm install
-cp .env.example .env      # then paste your two Neon addresses into .env
+cp .env.example .env      # then paste your Neon dev addresses + a JWT_SECRET into .env
+cp .env.test.example .env.test   # same for your Neon test branch
 npx prisma generate       # writes the database code from prisma/schema.prisma
+npx prisma migrate deploy # creates the tables on your dev branch
+npm run db:migrate:test   # ...and on your test branch
 npm run start:dev         # http://localhost:3000/api/v1/health
 ```
 
@@ -31,7 +34,10 @@ npm install
 npm run dev               # http://localhost:5173
 ```
 
-The page should show **Server: ok** and **Database: up**.
+Open http://localhost:5173, create an account, and you land on **My stokvels**.
+
+**Changing the database:** edit `prisma/schema.prisma`, then run
+`npx prisma migrate dev --name <what-changed>` (dev branch) and `npm run db:migrate:test` (test branch).
 
 ## Checks
 

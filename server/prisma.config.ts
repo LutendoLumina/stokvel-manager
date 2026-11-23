@@ -1,9 +1,23 @@
 import { existsSync } from 'node:fs';
 import { defineConfig } from 'prisma/config';
 
-// Prisma doesn't read .env by itself, so we load it with Node's built-in helper.
-// In CI there is no .env file: the variables come from the workflow instead.
-if (existsSync('.env')) process.loadEnvFile('.env');
+// npm tells us which script is running. `npm run db:migrate:test` loads .env.test
+// itself (see package.json), so for that script we must NEVER fall back to .env:
+// that would run the test migration on the dev database.
+const isTestMigration = process.env.npm_lifecycle_event === 'db:migrate:test';
+
+if (isTestMigration) {
+  if (!process.env.DIRECT_URL && !process.env.DATABASE_URL) {
+    throw new Error(
+      'db:migrate:test found no database address in .env.test. ' +
+        'Add your Neon test branch addresses (see .env.test.example). Refusing to use .env.',
+    );
+  }
+} else if (!process.env.DATABASE_URL && existsSync('.env')) {
+  // Normal use: Prisma doesn't read .env by itself, so load it with Node's helper.
+  // Skipped when a database address is already set (e.g. in CI).
+  process.loadEnvFile('.env');
+}
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',

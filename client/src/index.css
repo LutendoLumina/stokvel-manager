@@ -3,6 +3,7 @@
   --muted: #59636e;
   --bg: #ffffff;
   --ok: #1a7f37;
+  --on-ok: #ffffff; /* text on a green button: 5.1:1 contrast */
   --bad: #cf222e;
 
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -18,6 +19,7 @@
     --muted: #9198a1;
     --bg: #0d1117;
     --ok: #3fb950;
+    --on-ok: #0d1117; /* dark text on bright green: 7.5:1 (white would be 2.5:1) */
     --bad: #f85149;
   }
 }
@@ -44,4 +46,62 @@ main {
 .bad {
   color: var(--bad);
   font-weight: 600;
+}
+
+h1 {
+  margin: 0 0 1rem;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+input {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--ok);
+  color: var(--on-ok);
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--muted);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.row h1 {
+  margin: 0;
 }

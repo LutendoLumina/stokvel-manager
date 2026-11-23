@@ -22,6 +22,10 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('No JWT_SECRET for tests. Add one to server/.env.test (see .env.test.example).');
+}
+
 // Safety net: stop if the test address is the same as the dev one in .env.
 if (existsSync(devEnvFile)) {
   const dev = parseEnv(readFileSync(devEnvFile, 'utf8'));

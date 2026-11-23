@@ -1,6 +1,6 @@
 # API contract
 
-A REST API under /api/v1 with 25 endpoints. Every route except sign-up and log-in needs a token, and every stokvel route checks the caller's role in that stokvel.
+A REST API under /api/v1 with 26 endpoints. Every route except sign-up, log-in and health needs a token, and every stokvel route checks the caller's role in that stokvel.
 
 ## Conventions
 
@@ -20,16 +20,22 @@ A REST API under /api/v1 with 25 endpoints. Every route except sign-up and log-i
 
 | Method | Path | Who | What it does | Story |
 | --- | --- | --- | --- | --- |
-| POST | /auth/signup | Public | Create an account; links to any membership with the same phone | US-01, 03 |
+| POST | /auth/signup | Public | Create an account (US-01); links to any membership with the same phone (US-03) | US-01, 03 |
 | POST | /auth/login | Public | Log in with phone and password, returns a token | US-01 |
 | GET | /me | Any user | The logged-in user's profile | US-01 |
+
+**Health**
+
+| Method | Path | Who | What it does | Story |
+| --- | --- | --- | --- | --- |
+| GET | /health | Public | 200 if the server can reach the database, 503 if not. Public so monitoring tools can check it; it reveals only "up" or "down" | US-00 |
 
 **Stokvels**
 
 | Method | Path | Who | What it does | Story |
 | --- | --- | --- | --- | --- |
 | POST | /stokvels | Any user | Create a stokvel; the caller becomes chairperson | US-02 |
-| GET | /stokvels | Any user | List the stokvels the caller belongs to | US-01 |
+| GET | /stokvels | Any user | List the stokvels the caller belongs to | US-02 |
 | GET | /stokvels/:id | Member | Stokvel details and rules | US-09 |
 | PATCH | /stokvels/:id | Chairperson | Change name or rules, only before the first cycle starts | US-02 |
 

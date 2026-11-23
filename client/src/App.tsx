@@ -1,50 +1,32 @@
-import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
+import { getToken } from './auth'
+import { LoginPage } from './pages/LoginPage'
+import { SignupPage } from './pages/SignupPage'
+import { StokvelsPage } from './pages/StokvelsPage'
 
-// What we show on screen. "checking" is the state before the server answers.
-type Health =
-  | { state: 'checking' }
-  | { state: 'ok' }
-  | { state: 'database-down' }
-  | { state: 'server-down' }
+/** Pages that need a login: no token -> go to the log-in page. */
+function RequireLogin({ children }: { children: ReactNode }) {
+  return getToken() ? children : <Navigate to="/login" replace />
+}
 
+/** Which page to show for which URL. */
 function App() {
-  const [health, setHealth] = useState<Health>({ state: 'checking' })
-
-  // Runs once when the page opens: ask the server if it's healthy.
-  useEffect(() => {
-    // "/api/..." goes to Vite, which passes it on to the server (see vite.config.ts).
-    fetch('/api/v1/health')
-      .then((response) => {
-        if (response.ok) setHealth({ state: 'ok' })
-        else if (response.status === 503) setHealth({ state: 'database-down' })
-        else setHealth({ state: 'server-down' })
-      })
-      .catch(() => setHealth({ state: 'server-down' }))
-  }, [])
-
   return (
-    <main>
-      <h1>Stokvel Manager</h1>
-      <p className="muted">Walking skeleton: checking every part is connected.</p>
-
-      <ul>
-        <li>
-          Server:{' '}
-          {health.state === 'checking' && <span className="muted">checking…</span>}
-          {health.state === 'server-down' && <span className="bad">not reachable</span>}
-          {(health.state === 'ok' || health.state === 'database-down') && (
-            <span className="ok">ok</span>
-          )}
-        </li>
-        <li>
-          Database:{' '}
-          {health.state === 'checking' && <span className="muted">checking…</span>}
-          {health.state === 'ok' && <span className="ok">up</span>}
-          {health.state === 'database-down' && <span className="bad">down</span>}
-          {health.state === 'server-down' && <span className="muted">unknown</span>}
-        </li>
-      </ul>
-    </main>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/stokvels"
+        element={
+          <RequireLogin>
+            <StokvelsPage />
+          </RequireLogin>
+        }
+      />
+      {/* Anything else (including "/") goes to my stokvels, or log-in if logged out. */}
+      <Route path="*" element={<Navigate to="/stokvels" replace />} />
+    </Routes>
   )
 }
 
